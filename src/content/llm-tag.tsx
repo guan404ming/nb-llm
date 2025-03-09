@@ -1,24 +1,64 @@
-// Function to log debug messages
+/**
+ * LLM Tag Replacer
+ * 
+ * This script detects and replaces special tags in LLM outputs with interactive components.
+ * Currently supports <<collapse>> tags for collapsible content.
+ */
+
+// ======== Utility Functions ========
+
+/**
+ * Logs debug messages to the console
+ */
 function debugLog(...args: unknown[]): void {
   console.log('[LLM Tag Replacer]', ...args);
 }
 
-// Check if an element might contain accordion tags (even if fragmented)
-function mightContainAccordionTag(element: Element): boolean {
-  // Get the text content of the element (this concatenates all text nodes)
-  const text = element.textContent || '';
-
-  // Check for potential accordion tag fragments
-  return (
-    text.includes('<<accordion') ||
-    text.includes('accordion>>') ||
-    text.includes('<<acc')
-  );
+/**
+ * Generates a unique ID for DOM elements
+ */
+function generateUniqueId(): string {
+  return `collapse-${Math.random().toString(36).substring(2, 11)}`;
 }
 
-// Process the content of an element to handle accordion tags
-function processAccordionContent(element: Element): void {
-  if (!mightContainAccordionTag(element)) return;
+// ======== Tag Detection Functions ========
+
+/**
+ * Checks if an element might contain collapse tags
+ */
+function mightContainCollapseTag(element: Element): boolean {
+  const text = element.textContent || '';
+  return text.includes('<<collapse');
+}
+
+// ======== Component Creation Functions ========
+
+/**
+ * Creates a collapsible element
+ */
+function createCollapseElement(title: string): string {
+  const collapseId = generateUniqueId();
+  
+  return `
+    <div class="collapse collapse-arrow bg-base-200 rounded-md my-2">
+      <input type="radio" name="collapse-${collapseId}" /> 
+      <div class="collapse-title text-base font-medium">
+        ${title}
+      </div>
+      <div class="collapse-content"> 
+        <p>Click to see more details</p>
+      </div>
+    </div>
+  `;
+}
+
+// ======== Content Processing Functions ========
+
+/**
+ * Processes an element to replace collapse tags with interactive components
+ */
+function processCollapseContent(element: Element): void {
+  if (!mightContainCollapseTag(element)) return;
 
   // Get all text nodes within the element
   const textNodes: Node[] = [];
@@ -35,37 +75,18 @@ function processAccordionContent(element: Element): void {
 
   // Concatenate all text content
   const fullText = textNodes.map((node_) => node_.textContent).join('');
-  debugLog('Full concatenated text:', fullText);
-
-  // Check if the full text contains accordion tags
-  if (!fullText.includes('<<accordion') && !fullText.includes('accordion>>')) {
-    return;
-  }
-
-  // Process the full text to replace accordion tags
+  
+  // Process the full text to replace collapse tags
   let processedText = fullText;
 
-  // Pattern 1: <<accordion>>content<<accordion>>
   processedText = processedText.replace(
-    /<<accordion>>(.*?)<<accordion>>/gi,
-    (match, content) => {
-      debugLog('Matched accordion tag pattern 1:', match);
-      return `<div class="custom-accordion">accordion: ${content}</div>`;
-    }
-  );
-
-  // Pattern 2: <<accordion>>content<</accordion>>
-  processedText = processedText.replace(
-    /<<accordion>>(.*?)<\/accordion>>/gi,
-    (match, content) => {
-      debugLog('Matched accordion tag pattern 2:', match);
-      return `<div class="custom-accordion">accordion: ${content}</div>`;
-    }
+    /<<collapse>>(.*?)<<collapse>>/gi,
+    (_, title) => createCollapseElement(title)
   );
 
   // If the text was changed, update the element
   if (processedText !== fullText) {
-    debugLog('Replacing content in element with processed text');
+    debugLog('Replacing collapse tags in element');
 
     // Create a temporary container
     const tempContainer = document.createElement('div');
@@ -80,85 +101,145 @@ function processAccordionContent(element: Element): void {
     while (tempContainer.firstChild) {
       element.appendChild(tempContainer.firstChild);
     }
+    
+    // Add click event listeners to make the entire title area clickable
+    const collapseElements = element.querySelectorAll('.collapse-title');
+    collapseElements.forEach(collapseTitle => {
+      collapseTitle.addEventListener('click', () => {
+        // Find the associated input element and toggle it
+        const collapseContainer = collapseTitle.closest('.collapse');
+        if (collapseContainer) {
+          const input = collapseContainer.querySelector('input');
+          if (input) {
+            input.checked = !input.checked;
+          }
+        }
+      });
+    });
   }
 }
 
-// Process a single node or element
+/**
+ * Processes a node to find and handle elements with collapse tags
+ */
 function processNode(node: Node): void {
   // Only process element nodes
   if (node.nodeType !== Node.ELEMENT_NODE) return;
 
   const element = node as Element;
 
-  // Check if this is a p element that might contain accordion tags
+  // Check if this is a p element that might contain collapse tags
   if (
     element.nodeName === 'P' &&
     (element.hasAttribute('data-is-last-node') ||
       element.hasAttribute('data-is-only-node'))
   ) {
-    processAccordionContent(element);
+    processCollapseContent(element);
   }
 
   // Look for p elements within this node
   const pElements = element.querySelectorAll(
     'p[data-is-last-node], p[data-is-only-node]'
   );
-  pElements.forEach((p) => {
-    processAccordionContent(p);
-  });
+  pElements.forEach(processCollapseContent);
 }
 
-// Create a MutationObserver to watch for DOM changes
-const observer = new MutationObserver((mutations: MutationRecord[]) => {
-  debugLog('DOM mutation detected', mutations.length, 'changes');
+// ======== Style Injection ========
 
-  mutations.forEach((mutation) => {
-    if (mutation.type === 'childList') {
-      mutation.addedNodes.forEach((node) => {
-        processNode(node);
-      });
-    } else if (mutation.type === 'characterData') {
-      // Process text changes - important for fragmented content
-      const { parentElement } = mutation.target;
-      if (
-        parentElement &&
-        parentElement.nodeName === 'P' &&
-        (parentElement.hasAttribute('data-is-last-node') ||
-          parentElement.hasAttribute('data-is-only-node'))
-      ) {
-        processAccordionContent(parentElement);
-      }
+/**
+ * Injects required styles for the components
+ */
+function injectStyles(): void {
+  // Add Tailwind CSS
+  const tailwindLink = document.createElement('link');
+  tailwindLink.rel = 'stylesheet';
+  tailwindLink.href = 'https://cdn.tailwindcss.com';
+  document.head.appendChild(tailwindLink);
+  
+  // Add DaisyUI
+  const daisyLink = document.createElement('link');
+  daisyLink.rel = 'stylesheet';
+  daisyLink.href = 'https://cdn.jsdelivr.net/npm/daisyui@4.9.0/dist/full.css';
+  document.head.appendChild(daisyLink);
+  
+  // Add custom styles
+  const customStyles = document.createElement('style');
+  customStyles.textContent = `
+    .collapse-title {
+      cursor: pointer;
+      user-select: none;
     }
-  });
-});
-
-// Start observing the document
-debugLog('Starting MutationObserver');
-observer.observe(document.body, {
-  childList: true,
-  subtree: true,
-  attributes: false,
-  characterData: true, // Important for catching text changes in fragmented content
-});
-
-debugLog('Processing existing content');
-document
-  .querySelectorAll('p[data-is-last-node], p[data-is-only-node]')
-  .forEach((element) => {
-    processAccordionContent(element);
-  });
-
-// Add a style for our custom accordion
-const style = document.createElement('style');
-style.textContent = `
-    .custom-accordion {
-      border: 1px solid #ddd;
-      padding: 10px;
-      margin: 5px 0;
-      border-radius: 4px;
-      font-weight: bold;
+    
+    .collapse-arrow .collapse-title:after {
+      top: 50%;
+      right: 1.4rem;
+      transform: translateY(-50%);
+      transition: all 0.3s ease;
+    }
+    
+    .collapse-arrow input[type="radio"]:checked ~ .collapse-title:after,
+    .collapse-arrow input[type="checkbox"]:checked ~ .collapse-title:after {
+      transform: translateY(-50%) rotate(90deg);
     }
   `;
-document.head.appendChild(style);
+  document.head.appendChild(customStyles);
+}
 
-debugLog('Content script initialized');
+// ======== DOM Observation ========
+
+/**
+ * Sets up a MutationObserver to watch for DOM changes
+ */
+function setupMutationObserver(): void {
+  const observer = new MutationObserver((mutations: MutationRecord[]) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'childList') {
+        mutation.addedNodes.forEach(processNode);
+      } else if (mutation.type === 'characterData') {
+        // Process text changes - important for fragmented content
+        const { parentElement } = mutation.target;
+        if (
+          parentElement &&
+          parentElement.nodeName === 'P' &&
+          (parentElement.hasAttribute('data-is-last-node') ||
+            parentElement.hasAttribute('data-is-only-node'))
+        ) {
+          processCollapseContent(parentElement);
+        }
+      }
+    });
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+    attributes: false,
+    characterData: true,
+  });
+  
+  debugLog('MutationObserver started');
+}
+
+/**
+ * Processes existing content on the page
+ */
+function processExistingContent(): void {
+  document
+    .querySelectorAll('p[data-is-last-node], p[data-is-only-node]')
+    .forEach(processCollapseContent);
+    
+  debugLog('Existing content processed');
+}
+
+// ======== Initialization ========
+
+// Inject required styles
+injectStyles();
+
+// Set up mutation observer
+setupMutationObserver();
+
+// Process existing content
+processExistingContent();
+
+debugLog('LLM Tag Replacer initialized');
