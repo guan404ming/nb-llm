@@ -1,70 +1,24 @@
-# Chrome Extension TypeScript Starter
+# Chrome Extension Starter Kit 🚀
 
-![build](https://github.com/chibat/chrome-extension-typescript-starter/workflows/build/badge.svg)
+Get started with building your dream Chrome extension effortlessly! Our starter kit combines the power of cutting-edge technologies like Vite, TypeScript, React, CRX, Tailwind CSS, and DaisyUI, making extension development a breeze.
 
-Chrome Extension, TypeScript and Visual Studio Code
+Why choose this template? 🤔 Well, there are countless templates out there, but if you're eyeing Tailwind for your Chrome extension, you're in luck! 🎉 With this template, diving into extension development becomes a breeze – no configuration needed! 💻
 
-## Prerequisites
+## Key Features
+- 🛠️ **Vite**: for lightning-fast development and hot module replacement.
+- 🧰 **TypeScript**: for type safety and enhanced productivity.
+- ⚛️ **React**: for building dynamic and interactive UI components.
+- 📦 **CRX**: for easy packaging and distribution of your extension.
+- 🎨 **Tailwind CSS**: for hassle-free styling, including seamless integration in content scripts.
+- 🌼 **DaisyUI**: for beautiful and customizable UI elements right out of the box.
 
-* [node + npm](https://nodejs.org/) (Current Version)
+## Why Choose Our Starter Kit?
+- 🚀 **Streamlined Setup**: Say goodbye to configuration headaches. Get up and running in minutes.
+- ⚡ **Optimized Performance**: Leverage Vite's speed and Tailwind CSS's efficiency for blazing-fast development.
+- 👩‍💻 **Developer-Friendly**: TypeScript support and React components empower developers to build feature-rich extensions with ease.
 
-## Option
-
-* [Visual Studio Code](https://code.visualstudio.com/)
-
-## Includes the following
-
-* TypeScript
-* Webpack
-* React
-* Jest
-* Example Code
-    * Chrome Storage
-    * Options Version 2
-    * content script
-    * count up badge number
-    * background
-
-## Project Structure
-
-* src/typescript: TypeScript source files
-* src/assets: static files
-* dist: Chrome Extension directory
-* dist/js: Generated JavaScript files
-
-## Setup
-
-```
-npm install
-```
-
-## Import as Visual Studio Code project
-
-...
-
-## Build
-
-```
-npm run build
-```
-
-## Build in watch mode
-
-### terminal
-
-```
-npm run watch
-```
-
-### Visual Studio Code
-
-Run watch mode.
-
-type `Ctrl + Shift + B`
-
-## Load extension to chrome
-
-Load `dist` directory
-
-## Test
-`npx jest` or `npm run test`
+## Usage Instructions
+1. 📥 Clone the repository.
+2. 🔧 Install dependencies with `pnpm install`.
+3. 🚀 Start development server with `pnpm dev`.
+4. 🏗️ Build your extension for production with `pnpm build`.
