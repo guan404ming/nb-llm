@@ -2,6 +2,7 @@
  * LLM Tag Replacer
  * 
  * This script detects and replaces special tags in LLM outputs with interactive components.
+ * Designed to be extensible for different types of components.
  * Currently supports <<collapse>> tags for collapsible content.
  */
 
@@ -18,47 +19,124 @@ function debugLog(...args: unknown[]): void {
  * Generates a unique ID for DOM elements
  */
 function generateUniqueId(): string {
-  return `collapse-${Math.random().toString(36).substring(2, 11)}`;
+  return `element-${Math.random().toString(36).substring(2, 11)}`;
 }
 
-// ======== Tag Detection Functions ========
+// ======== Tag Processor Interface ========
 
 /**
- * Checks if an element might contain collapse tags
+ * Interface for tag processors
  */
-function mightContainCollapseTag(element: Element): boolean {
-  const text = element.textContent || '';
-  return text.includes('<<collapse');
-}
-
-// ======== Component Creation Functions ========
-
-/**
- * Creates a collapsible element
- */
-function createCollapseElement(title: string): string {
-  const collapseId = generateUniqueId();
+interface TagProcessor {
+  /**
+   * Name of the tag this processor handles
+   */
+  tagName: string;
   
-  return `
-    <div class="collapse collapse-arrow bg-base-200 rounded-md my-2">
-      <input type="radio" name="collapse-${collapseId}" /> 
-      <div class="collapse-title text-base font-medium">
-        ${title}
-      </div>
-      <div class="collapse-content"> 
-        <p>Click to see more details</p>
-      </div>
-    </div>
-  `;
+  /**
+   * Checks if the text contains this processor's tag
+   */
+  containsTag(text: string): boolean;
+  
+  /**
+   * Processes text to replace tags with HTML elements
+   */
+  processText(text: string): string;
+  
+  /**
+   * Enhances elements after they've been added to the DOM
+   */
+  enhanceElements(container: Element): void;
+  
+  /**
+   * Creates an HTML element string from the tag content
+   */
+  createElement(content: string): string;
 }
+
+// ======== Collapse Tag Processor ========
+
+/**
+ * Processor for collapse tags
+ */
+const collapseProcessor: TagProcessor = {
+  tagName: 'collapse',
+  
+  containsTag(text: string): boolean {
+    return text.includes(`<<${this.tagName}>`);
+  },
+  
+  processText(text: string): string {
+    // Pattern: <<collapse>>title<<collapse>>
+    // Use 'g' flag to replace all occurrences, not just the first one
+    return text.replace(
+      new RegExp(`<<${this.tagName}>>(.*?)<<${this.tagName}>>`, 'gi'),
+      (_, title) => this.createElement(title)
+    );
+  },
+  
+  enhanceElements(container: Element): void {
+    // Add click event listeners to make the entire title area clickable
+    const collapseElements = container.querySelectorAll('.collapse-title');
+    collapseElements.forEach(collapseTitle => {
+      collapseTitle.addEventListener('click', () => {
+        // Find the associated input element and toggle it
+        const collapseContainer = collapseTitle.closest('.collapse');
+        if (collapseContainer) {
+          const input = collapseContainer.querySelector('input');
+          if (input) {
+            input.checked = !input.checked;
+          }
+        }
+      });
+    });
+  },
+  
+  createElement(title: string): string {
+    const collapseId = generateUniqueId();
+    
+    return `
+      <div class="collapse collapse-arrow bg-base-200 rounded-md my-2">
+        <input type="radio" name="collapse-${collapseId}" /> 
+        <div class="collapse-title text-base font-medium">
+          ${title}
+        </div>
+        <div class="collapse-content"> 
+          <p>Click to see more details</p>
+        </div>
+      </div>
+    `;
+  }
+};
+
+// ======== Tag Processor Registry ========
+
+/**
+ * Registry of all tag processors
+ */
+const tagProcessors: TagProcessor[] = [
+  collapseProcessor,
+  // Add more processors here in the future
+];
 
 // ======== Content Processing Functions ========
 
 /**
- * Processes an element to replace collapse tags with interactive components
+ * Processes an element to replace tags with interactive components
  */
-function processCollapseContent(element: Element): void {
-  if (!mightContainCollapseTag(element)) return;
+function processContent(element: Element): void {
+  // Skip if this element is already a collapse or contains collapses
+  if (
+    element.classList?.contains('collapse') || 
+    element.querySelector('.collapse')
+  ) {
+    return;
+  }
+
+  // Check if any processor might handle this element
+  if (!tagProcessors.some(processor => processor.containsTag(element.textContent || ''))) {
+    return;
+  }
 
   // Get all text nodes within the element
   const textNodes: Node[] = [];
@@ -76,17 +154,24 @@ function processCollapseContent(element: Element): void {
   // Concatenate all text content
   const fullText = textNodes.map((node_) => node_.textContent).join('');
   
-  // Process the full text to replace collapse tags
+  // Process the full text with all processors
   let processedText = fullText;
-
-  processedText = processedText.replace(
-    /<<collapse>>(.*?)<<collapse>>/gi,
-    (_, title) => createCollapseElement(title)
-  );
+  let wasProcessed = false;
+  
+  // Use array methods instead of for loops
+  tagProcessors.forEach(processor => {
+    if (processor.containsTag(processedText)) {
+      const result = processor.processText(processedText);
+      if (result !== processedText) {
+        processedText = result;
+        wasProcessed = true;
+      }
+    }
+  });
 
   // If the text was changed, update the element
-  if (processedText !== fullText) {
-    debugLog('Replacing collapse tags in element');
+  if (wasProcessed) {
+    debugLog('Replacing tags in element');
 
     // Create a temporary container
     const tempContainer = document.createElement('div');
@@ -102,46 +187,47 @@ function processCollapseContent(element: Element): void {
       element.appendChild(tempContainer.firstChild);
     }
     
-    // Add click event listeners to make the entire title area clickable
-    const collapseElements = element.querySelectorAll('.collapse-title');
-    collapseElements.forEach(collapseTitle => {
-      collapseTitle.addEventListener('click', () => {
-        // Find the associated input element and toggle it
-        const collapseContainer = collapseTitle.closest('.collapse');
-        if (collapseContainer) {
-          const input = collapseContainer.querySelector('input');
-          if (input) {
-            input.checked = !input.checked;
-          }
-        }
-      });
+    // Enhance elements with all processors using array methods
+    tagProcessors.forEach(processor => {
+      processor.enhanceElements(element);
     });
   }
 }
 
 /**
- * Processes a node to find and handle elements with collapse tags
+ * Processes a node to find and handle elements with tags
  */
 function processNode(node: Node): void {
   // Only process element nodes
   if (node.nodeType !== Node.ELEMENT_NODE) return;
 
   const element = node as Element;
+  
+  // Skip if this element is a collapse or contains collapses
+  if (element.classList?.contains('collapse') || element.querySelector('.collapse')) {
+    return;
+  }
 
-  // Check if this is a p element that might contain collapse tags
+  // Check if this is a p element that might contain tags
   if (
     element.nodeName === 'P' &&
     (element.hasAttribute('data-is-last-node') ||
       element.hasAttribute('data-is-only-node'))
   ) {
-    processCollapseContent(element);
+    processContent(element);
   }
 
   // Look for p elements within this node
   const pElements = element.querySelectorAll(
     'p[data-is-last-node], p[data-is-only-node]'
   );
-  pElements.forEach(processCollapseContent);
+  
+  // Filter out elements that are or contain collapses
+  pElements.forEach(p => {
+    if (!p.classList?.contains('collapse') && !p.querySelector('.collapse')) {
+      processContent(p);
+    }
+  });
 }
 
 // ======== Style Injection ========
@@ -194,7 +280,16 @@ function setupMutationObserver(): void {
   const observer = new MutationObserver((mutations: MutationRecord[]) => {
     mutations.forEach((mutation) => {
       if (mutation.type === 'childList') {
-        mutation.addedNodes.forEach(processNode);
+        mutation.addedNodes.forEach(node => {
+          // Skip if this node is a collapse element
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            const element = node as Element;
+            if (element.classList?.contains('collapse')) {
+              return;
+            }
+          }
+          processNode(node);
+        });
       } else if (mutation.type === 'characterData') {
         // Process text changes - important for fragmented content
         const { parentElement } = mutation.target;
@@ -202,9 +297,12 @@ function setupMutationObserver(): void {
           parentElement &&
           parentElement.nodeName === 'P' &&
           (parentElement.hasAttribute('data-is-last-node') ||
-            parentElement.hasAttribute('data-is-only-node'))
+            parentElement.hasAttribute('data-is-only-node')) &&
+          // Skip if parent is or contains a collapse
+          !parentElement.classList?.contains('collapse') &&
+          !parentElement.querySelector('.collapse')
         ) {
-          processCollapseContent(parentElement);
+          processContent(parentElement);
         }
       }
     });
@@ -226,7 +324,7 @@ function setupMutationObserver(): void {
 function processExistingContent(): void {
   document
     .querySelectorAll('p[data-is-last-node], p[data-is-only-node]')
-    .forEach(processCollapseContent);
+    .forEach(processContent);
     
   debugLog('Existing content processed');
 }
