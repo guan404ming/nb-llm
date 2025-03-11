@@ -3,11 +3,11 @@
  * 
  * This script detects and replaces special tags in LLM outputs with interactive components.
  * Designed to be extensible for different types of components.
- * Currently supports <<collapse>> tags for collapsible content.
  */
 
-import highlightProcessor from "./TagProcessors/HighlightTagProcessors";
-import collapseProcessor from "./TagProcessors/CollapseTagProcessors";
+import highlightProcessor from "./TagProcessors/HighlightTagProcessor";
+import collapseProcessor from "./TagProcessors/CollapseTagProcessor";
+import hideAndSeeProcessor from "./TagProcessors/HideAndSeeTagProcessor";
 import TagProcessor from "./TagProcessors/TagProcessorsBase";
 
 // ======== Utility Functions ========
@@ -27,6 +27,7 @@ function debugLog(...args: unknown[]): void {
 const tagProcessors: TagProcessor[] = [
   collapseProcessor,
   highlightProcessor,
+  hideAndSeeProcessor,
   // Add more processors here in the future
 ];
 
