@@ -37,7 +37,7 @@ export default defineManifest({
     {
       js: isDev
         ? ['src/content/index.dev.tsx']
-        : ['src/content/index.prod.tsx', 'src/content/llm-tag.tsx'],
+        : ['src/content/index.prod.tsx', 'src/content/tag-processor-worker.tsx'],
       matches: ['<all_urls>'],
     },
   ],
