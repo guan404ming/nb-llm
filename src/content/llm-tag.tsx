@@ -260,34 +260,6 @@ function injectStyles(): void {
   tailwindLink.rel = 'stylesheet';
   tailwindLink.href = 'https://cdn.tailwindcss.com';
   document.head.appendChild(tailwindLink);
-  
-  // Add DaisyUI
-  const daisyLink = document.createElement('link');
-  daisyLink.rel = 'stylesheet';
-  daisyLink.href = 'https://cdn.jsdelivr.net/npm/daisyui@4.9.0/dist/full.css';
-  document.head.appendChild(daisyLink);
-  
-  // Add custom styles
-  const customStyles = document.createElement('style');
-  customStyles.textContent = `
-    .collapse-title {
-      cursor: pointer;
-      user-select: none;
-    }
-    
-    .collapse-arrow .collapse-title:after {
-      top: 50%;
-      right: 1.4rem;
-      transform: translateY(-50%);
-      transition: all 0.3s ease;
-    }
-    
-    .collapse-arrow input[type="radio"]:checked ~ .collapse-title:after,
-    .collapse-arrow input[type="checkbox"]:checked ~ .collapse-title:after {
-      transform: translateY(-50%) rotate(90deg);
-    }
-  `;
-  document.head.appendChild(customStyles);
 }
 
 // ======== DOM Observation ========
