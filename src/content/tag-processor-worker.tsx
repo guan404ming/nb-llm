@@ -6,7 +6,6 @@
  */
 
 import highlightProcessor from "./TagProcessors/HighlightTagProcessor";
-import collapseProcessor from "./TagProcessors/CollapseTagProcessor";
 import hideAndSeeProcessor from "./TagProcessors/HideAndSeeTagProcessor";
 import TagProcessor from "./TagProcessors/TagProcessorsBase";
 
@@ -25,7 +24,6 @@ function debugLog(...args: unknown[]): void {
  * Registry of all tag processors
  */
 const tagProcessors: TagProcessor[] = [
-  collapseProcessor,
   highlightProcessor,
   hideAndSeeProcessor,
   // Add more processors here in the future
