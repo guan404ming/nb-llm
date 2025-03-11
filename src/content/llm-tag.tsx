@@ -162,7 +162,6 @@ const tagProcessors: TagProcessor[] = [
  */
 function processContent(element: Element): void {
   const text = element.textContent || '';
-  debugLog(`Processing content: ${text}`);
 
   // Check if any processor might handle this element
   if (!tagProcessors.some(processor => processor.containsTag(text))) {
@@ -189,7 +188,6 @@ function processContent(element: Element): void {
   });
 
   if (!shouldProcess) {
-    debugLog('Skipping incomplete tag pairs');
     return;
   }
 
@@ -226,7 +224,6 @@ function processContent(element: Element): void {
 
   // If the text was changed, update the element
   if (wasProcessed) {
-    debugLog('Replacing tags in element');
 
     // Create a temporary container
     const tempContainer = document.createElement('div');
@@ -270,7 +267,6 @@ function injectStyles(): void {
 function setupMutationObserver(): void {
   const observer = new MutationObserver((mutations: MutationRecord[]) => {
     mutations.forEach((mutation) => {
-      debugLog(`Mutation detected: ${mutation.type}`);
       if (mutation.target instanceof Element) {
         const pElements = mutation.target as Element;
         pElements.querySelectorAll('p[data-start], p[data-end]').forEach(p => {
@@ -294,8 +290,6 @@ function setupMutationObserver(): void {
     attributes: false,
     characterData: true,
   });
-  
-  debugLog('MutationObserver started');
 }
 
 /**
@@ -305,8 +299,6 @@ function processExistingContent(): void {
   document
     .querySelectorAll('p[data-is-last-node], p[data-is-only-node]')
     .forEach(processContent);
-    
-  debugLog('Existing content processed');
 }
 
 // ======== Initialization ========
@@ -320,4 +312,4 @@ setupMutationObserver();
 // Process existing content
 processExistingContent();
 
-debugLog('LLM Tag Replacer initialized');
+debugLog('NB-LLM initialized');
