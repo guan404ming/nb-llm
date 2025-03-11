@@ -109,6 +109,41 @@ const collapseProcessor: TagProcessor = {
   }
 };
 
+const highlighterProcessor: TagProcessor = {
+  tagName: 'highlight',
+  containsTag(text: string): boolean {
+    return text.includes(`<<${this.tagName}>`);
+  },
+
+  processText(text: string): string {
+    return text.replace(
+      new RegExp(`<<${this.tagName}>>(.*?)<<${this.tagName}>>`, 'gi'),
+      (_, content) => this.createElement(content)
+    );
+  },
+
+  enhanceElements(container: Element): void {
+    // Add click event listeners to make the entire title area clickable
+    const collapseElements = container.querySelectorAll('.collapse-title');
+    collapseElements.forEach(collapseTitle => {
+      collapseTitle.addEventListener('click', () => {
+        // Find the associated input element and toggle it
+        const collapseContainer = collapseTitle.closest('.collapse');
+        if (collapseContainer) {
+          const input = collapseContainer.querySelector('input');
+          if (input) {
+            input.checked = !input.checked;
+          }
+        }
+      });
+    });
+  },
+
+  createElement(content: string): string {
+    return `<span class="bg-yellow-200 text-yellow-800 px-1 py-0.5 rounded-md">${content}</span>`;
+  }
+};
+
 // ======== Tag Processor Registry ========
 
 /**
@@ -116,6 +151,7 @@ const collapseProcessor: TagProcessor = {
  */
 const tagProcessors: TagProcessor[] = [
   collapseProcessor,
+  highlighterProcessor,
   // Add more processors here in the future
 ];
 
@@ -125,16 +161,35 @@ const tagProcessors: TagProcessor[] = [
  * Processes an element to replace tags with interactive components
  */
 function processContent(element: Element): void {
-  // Skip if this element is already a collapse or contains collapses
-  if (
-    element.classList?.contains('collapse') || 
-    element.querySelector('.collapse')
-  ) {
+  const text = element.textContent || '';
+  debugLog(`Processing content: ${text}`);
+
+  // Check if any processor might handle this element
+  if (!tagProcessors.some(processor => processor.containsTag(text))) {
     return;
   }
 
-  // Check if any processor might handle this element
-  if (!tagProcessors.some(processor => processor.containsTag(element.textContent || ''))) {
+  // For each processor, check if the text contains complete tag pairs
+  // before processing
+  let shouldProcess = false;
+  tagProcessors.forEach(processor => {
+    const openTag = `<<${processor.tagName}>>`;
+    const closeTag = `<<${processor.tagName}>>`;
+    const altCloseTag = `<<${processor.tagName}s>>`; // Handle potential typos
+    
+    // Count opening and closing tags
+    const openCount = (text.match(new RegExp(openTag, 'g')) || []).length;
+    const closeCount = (text.match(new RegExp(closeTag, 'g')) || []).length;
+    const altCloseCount = (text.match(new RegExp(altCloseTag, 'g')) || []).length;
+    
+    // Only process if we have matching pairs
+    if (openCount > 0 && (openCount <= closeCount + altCloseCount)) {
+      shouldProcess = true;
+    }
+  });
+
+  if (!shouldProcess) {
+    debugLog('Skipping incomplete tag pairs');
     return;
   }
 
@@ -194,42 +249,6 @@ function processContent(element: Element): void {
   }
 }
 
-/**
- * Processes a node to find and handle elements with tags
- */
-function processNode(node: Node): void {
-  // Only process element nodes
-  if (node.nodeType !== Node.ELEMENT_NODE) return;
-
-  const element = node as Element;
-  
-  // Skip if this element is a collapse or contains collapses
-  if (element.classList?.contains('collapse') || element.querySelector('.collapse')) {
-    return;
-  }
-
-  // Check if this is a p element that might contain tags
-  if (
-    element.nodeName === 'P' &&
-    (element.hasAttribute('data-is-last-node') ||
-      element.hasAttribute('data-is-only-node'))
-  ) {
-    processContent(element);
-  }
-
-  // Look for p elements within this node
-  const pElements = element.querySelectorAll(
-    'p[data-is-last-node], p[data-is-only-node]'
-  );
-  
-  // Filter out elements that are or contain collapses
-  pElements.forEach(p => {
-    if (!p.classList?.contains('collapse') && !p.querySelector('.collapse')) {
-      processContent(p);
-    }
-  });
-}
-
 // ======== Style Injection ========
 
 /**
@@ -279,31 +298,20 @@ function injectStyles(): void {
 function setupMutationObserver(): void {
   const observer = new MutationObserver((mutations: MutationRecord[]) => {
     mutations.forEach((mutation) => {
-      if (mutation.type === 'childList') {
-        mutation.addedNodes.forEach(node => {
-          // Skip if this node is a collapse element
-          if (node.nodeType === Node.ELEMENT_NODE) {
-            const element = node as Element;
-            if (element.classList?.contains('collapse')) {
-              return;
-            }
-          }
-          processNode(node);
+      debugLog(`Mutation detected: ${mutation.type}`);
+      if (mutation.target instanceof Element) {
+        const pElements = mutation.target as Element;
+        pElements.querySelectorAll('p[data-start], p[data-end]').forEach(p => {
+          processContent(p);
         });
-      } else if (mutation.type === 'characterData') {
-        // Process text changes - important for fragmented content
-        const { parentElement } = mutation.target;
-        if (
-          parentElement &&
-          parentElement.nodeName === 'P' &&
-          (parentElement.hasAttribute('data-is-last-node') ||
-            parentElement.hasAttribute('data-is-only-node')) &&
-          // Skip if parent is or contains a collapse
-          !parentElement.classList?.contains('collapse') &&
-          !parentElement.querySelector('.collapse')
-        ) {
-          processContent(parentElement);
-        }
+      } else if (mutation.type === 'childList') {
+        mutation.addedNodes.forEach(node => {
+          if (node instanceof Element) {
+            node.querySelectorAll('p[data-start], p[data-end]').forEach(p => {
+              processContent(p);
+            });
+          }
+        });
       }
     });
   });
