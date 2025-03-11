@@ -1,24 +1,59 @@
-# Chrome Extension Starter Kit 🚀
+# NB-LLM Chrome Extension 🚀
 
-Get started with building your dream Chrome extension effortlessly! Our starter kit combines the power of cutting-edge technologies like Vite, TypeScript, React, CRX, Tailwind CSS, and DaisyUI, making extension development a breeze.
+NB-LLM is a Chrome extension designed to enhance your AI chat experience. Through modern technology stack and intuitive user interface, make your AI conversations more rich and interactive.
 
-Why choose this template? 🤔 Well, there are countless templates out there, but if you're eyeing Tailwind for your Chrome extension, you're in luck! 🎉 With this template, diving into extension development becomes a breeze – no configuration needed! 💻
+## Key Features 🎯
+- 🎨 **Tag Processing System**
+  - `<<highlight>>` Highlight important text
+  - `<<hide-and-see>>` Create clickable hidden content
+- ⚡ **Real-time Processing**: Auto-detect and process page changes without refresh
+- 🌓 **Theme Switching**: Support for light/dark themes
+- 🎯 **Isolated Environment**: Using Shadow DOM to ensure no interference with original webpage
 
-## Key Features
-- 🛠️ **Vite**: for lightning-fast development and hot module replacement.
-- 🧰 **TypeScript**: for type safety and enhanced productivity.
-- ⚛️ **React**: for building dynamic and interactive UI components.
-- 📦 **CRX**: for easy packaging and distribution of your extension.
-- 🎨 **Tailwind CSS**: for hassle-free styling, including seamless integration in content scripts.
-- 🌼 **DaisyUI**: for beautiful and customizable UI elements right out of the box.
+## Technical Features 🛠
+- ⚛️ **React 18**: Build dynamic and interactive user interfaces
+- 🔷 **TypeScript**: Ensure type safety and development efficiency
+- 🎨 **Tailwind CSS + DaisyUI**: Beautiful UI design
+- 📦 **Vite**: Fast development experience and build performance
+- 🔒 **Shadow DOM**: Style isolation, ensuring extension compatibility with webpages
 
-## Why Choose Our Starter Kit?
-- 🚀 **Streamlined Setup**: Say goodbye to configuration headaches. Get up and running in minutes.
-- ⚡ **Optimized Performance**: Leverage Vite's speed and Tailwind CSS's efficiency for blazing-fast development.
-- 👩‍💻 **Developer-Friendly**: TypeScript support and React components empower developers to build feature-rich extensions with ease.
+## Installation Requirements 📋
+- Node.js 20.x
+- PNPM 8.15.0+
 
-## Usage Instructions
-1. 📥 Clone the repository.
-2. 🔧 Install dependencies with `pnpm install`.
-3. 🚀 Start development server with `pnpm dev`.
-4. 🏗️ Build your extension for production with `pnpm build`.
+## Getting Started 🚀
+1. 📥 Clone the project:
+   ```bash
+   git clone https://github.com/guan404ming/nb-llm
+   ```
+
+2. 🔧 Install dependencies:
+   ```bash
+   pnpm install
+   ```
+
+3. 🏃‍♂️ Development mode:
+   ```bash
+   pnpm dev
+   ```
+
+4. 📦 Build project:
+   ```bash
+   pnpm build
+   ```
+
+## Development Tools Support 🔧
+- ESLint + Prettier code standards
+- TypeScript type checking
+- Hot reload development environment
+- GitHub Actions CI/CD
+
+## Browser Support 🌐
+- Chrome: Latest version
+- Edge: Latest version (Chromium-based)
+
+## License 📄
+[Your License]
+
+## Contributing 🤝
+Pull requests and Issues are welcome!

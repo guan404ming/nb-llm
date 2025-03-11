@@ -32,7 +32,7 @@ export default defineManifest({
     48: 'icon48.png',
     128: 'icon128.png',
   },
-  permissions: ['activeTab', 'storage'],
+  host_permissions: ['https://chatgpt.com/*', 'https://gemini.google.com/app/*'],
   content_scripts: [
     {
       js: isDev
