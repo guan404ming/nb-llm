@@ -15,7 +15,7 @@ const highlightTagProcessor: TagProcessor = {
     },
   
     createElement(content: string): string {
-    return `<span class="bg-yellow-200 text-yellow-800 px-1 py-0.5 rounded-md" id="${generateUniqueId()}">${content}</span>`;
+    return `<span class="bg-yellow-200 text-yellow-800 px-1 py-0.5 rounded-md processed" id="${generateUniqueId()}">${content}</span>`;
     }
 };
 
