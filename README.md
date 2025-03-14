@@ -10,18 +10,27 @@ NB-LLM is a Chrome extension designed to enhance your AI chat experience. Throug
 - 🌓 **Theme Switching**: Support for light/dark themes
 - 🎯 **Isolated Environment**: Using Shadow DOM to ensure no interference with original webpage
 
-## Technical Features 🛠
-- ⚛️ **React 18**: Build dynamic and interactive user interfaces
-- 🔷 **TypeScript**: Ensure type safety and development efficiency
-- 🎨 **Tailwind CSS + DaisyUI**: Beautiful UI design
-- 📦 **Vite**: Fast development experience and build performance
-- 🔒 **Shadow DOM**: Style isolation, ensuring extension compatibility with webpages
+## Installation 📋
 
-## Installation Requirements 📋
-- Node.js 20.x
-- PNPM 8.15.0+
+1. Download and unpack the [NB-LLM ZIP file](https://github.com/guan404ming/nb-llm/releases/tag/alpha) to a directory of your choice.
+2. Go to [chrome://extensions/](chrome://extensions/)
+3. Turn on "Developer mode"
+   ![turn_on_developer_mode](https://github.com/user-attachments/assets/69d3733c-1e5f-4756-879f-3f44e135cc6d)
+4. Click "Load unpacked"
+   ![load_unpacked](https://github.com/user-attachments/assets/aadfd844-bba9-4ca0-8c02-1538cf062d26)
+5. Select the directory of with the unpacked NB-LLM ZIP file from step 1
 
-## Getting Started 🚀
+
+# Getting Started 🚀
+1. Open [ChatGPT](https://chatgpt.com)
+2. Enable [NB-LLM](chrome://extensions/) in extension list
+3. Enter prompt template in [prompt-template.txt](prompt-template.txt)
+4. Modify the prompt template to your needs
+5. Your ChatGPT is ready to use tools like `<<highlight>>` and `<<hide-and-see>>`
+<img width="974" alt="image" src="https://github.com/user-attachments/assets/81ff7cf9-b425-4953-9bf1-81f8b5a2aa96" />
+
+
+## Development 🚀
 1. 📥 Clone the project:
    ```bash
    git clone https://github.com/guan404ming/nb-llm
@@ -41,19 +50,6 @@ NB-LLM is a Chrome extension designed to enhance your AI chat experience. Throug
    ```bash
    pnpm build
    ```
-
-## Development Tools Support 🔧
-- ESLint + Prettier code standards
-- TypeScript type checking
-- Hot reload development environment
-- GitHub Actions CI/CD
-
-## Browser Support 🌐
-- Chrome: Latest version
-- Edge: Latest version (Chromium-based)
-
-## License 📄
-[Your License]
 
 ## Contributing 🤝
 Pull requests and Issues are welcome!
