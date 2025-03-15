@@ -10,16 +10,6 @@ interface TagProcessor {
     tagName: string;
     
     /**
-     * Checks if the text contains this processor's tag
-     */
-    containsTag(text: string): boolean;
-    
-    /**
-     * Processes text to replace tags with HTML elements
-     */
-    processText(text: string): string;
-    
-    /**
      * Enhances elements after they've been added to the DOM
      */
     enhanceElements?(container: Element): void;
