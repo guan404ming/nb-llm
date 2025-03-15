@@ -1,6 +1,13 @@
 # NB-LLM Chrome Extension 🚀
 
+
+
 NB-LLM is a Chrome extension designed to enhance your AI chat experience. Through modern technology stack and intuitive user interface, make your AI conversations more rich and interactive.
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/d02d1214-7869-4142-89c6-fe07004c188b" alt="animated" />
+</p>
+
 
 ## Key Features 🎯
 - 🎨 **Tag Processing System**
@@ -27,8 +34,6 @@ NB-LLM is a Chrome extension designed to enhance your AI chat experience. Throug
 3. Enter prompt template in [prompt-template.txt](prompt-template.txt)
 4. Modify the prompt template to your needs
 5. Your ChatGPT is ready to use tools like `<<highlight>>` and `<<hide-and-see>>`
-<img width="974" alt="image" src="https://github.com/user-attachments/assets/81ff7cf9-b425-4953-9bf1-81f8b5a2aa96" />
-
 
 ## Development 🚀
 1. 📥 Clone the project:
