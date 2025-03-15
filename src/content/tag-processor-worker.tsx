@@ -98,6 +98,7 @@ function processContent(element: Element): void {
     element.appendChild(tempContainer.firstChild);
   }
 
+  debugLog('Processed element:', processedText);
   // Enhance the element with the tag processors
   tagProcessors.forEach((processor) => {
     if (processor.enhanceElements) {
