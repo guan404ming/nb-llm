@@ -19,8 +19,8 @@ const hideAndSeeTagProcessor: TagProcessor = {
     const id = generateUniqueId();
     return `
       <button class="hide-and-see cursor-pointer processed" id="${id}">
-        <span class="hide-and-see-content hidden rounded-md px-2 mx-2 border-gray-300 border">${content}</span>
-        <span class="hide-and-see-toggle border border-gray-300 rounded-md px-2 mx-2">
+        <span class="hide-and-see-content hidden rounded-md px-2 mx-2 border-gray-300 border processed-child">${content}</span>
+        <span class="hide-and-see-toggle border border-gray-300 rounded-md px-2 mx-2 processed-child">
           🔍 Click to reveal
         </span>
       </button>

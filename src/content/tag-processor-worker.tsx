@@ -39,40 +39,40 @@ const tagProcessors: TagProcessor[] = [
 function processContent(element: Element): void {
   const text = element.textContent || '';
 
-  if (!tagProcessors.some(processor => processor.containsTag(text))) return;
+  if (!tagProcessors.some((processor) => processor.containsTag(text))) return;
 
-  // Check if the text contains any tags
-
-  let shouldProcess = false;
-  tagProcessors.forEach(processor => {
-    const tag = `<<${processor.tagName}>>`;
-    const tagCount = (text.match(new RegExp(tag, 'g')) || []).length;
-    shouldProcess = shouldProcess || (tagCount > 0 && tagCount % 2 === 0);
-  });
-
-  if (!shouldProcess) return;
-
-  // Traverse the DOM to get all text nodes
-
-  const textNodes: Node[] = [];
+  const fullText = []
   const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null);
 
   let node = walker.nextNode();
+  const processedNode: Node[] = [];
   while (node) {
-    textNodes.push(node);
+    if (
+      node.parentNode &&
+      (node.parentElement as Element).classList.contains('processed') &&
+      !(node.parentElement as Element).classList.contains('processed-child') &&
+      !processedNode.includes(node.parentNode)
+    ) {
+      processedNode.push(node.parentNode);
+      fullText.push((node.parentNode as Element).outerHTML);
+    }
+
+    if (
+      !(node.parentElement as Element).classList.contains('processed') &&
+      !(node.parentElement as Element).classList.contains('processed-child')
+    ) {
+      fullText.push(node.textContent);
+    }
+
     node = walker.nextNode();
   }
 
-  if (textNodes.length === 0) return;
+  if (fullText.length === 0) return;
 
-  // Join all text nodes into a single string
-
-  const fullText = textNodes.map((node_) => node_.textContent).join('');
-  
-  let processedText = fullText;
+  let processedText = fullText.join('');
   let wasProcessed = false;
-  
-  tagProcessors.forEach(processor => {
+
+  tagProcessors.forEach((processor) => {
     if (processor.containsTag(processedText)) {
       const result = processor.processText(processedText);
       if (result !== processedText) {
@@ -83,11 +83,11 @@ function processContent(element: Element): void {
   });
 
   if (!wasProcessed) return;
-  
+
   // Replace the element's content with the processed text
   const tempContainer = document.createElement('div');
   tempContainer.innerHTML = processedText;
-  
+
   while (element.firstChild) {
     element.removeChild(element.firstChild);
   }
@@ -97,7 +97,7 @@ function processContent(element: Element): void {
   }
 
   // Enhance the element with the tag processors
-  tagProcessors.forEach(processor => {
+  tagProcessors.forEach((processor) => {
     if (processor.enhanceElements) {
       processor.enhanceElements(element);
     }
@@ -116,16 +116,6 @@ function setupMutationObserver(): void {
         const pElements = mutation.target as Element;
         pElements.querySelectorAll('p[data-start], p[data-end]').forEach(p => {
           processContent(p);
-          debugLog("ACTIVATED 1")
-        });
-      } else if (mutation.type === 'childList') {
-        mutation.addedNodes.forEach(node => {
-          if (node instanceof Element) {
-            node.querySelectorAll('p[data-start], p[data-end]').forEach(p => {
-              processContent(p);
-              debugLog("ACTIVATED 2")
-            });
-          }
         });
       }
     });
@@ -139,21 +129,9 @@ function setupMutationObserver(): void {
   });
 }
 
-/**
- * Processes existing content on the page
- */
-function processExistingContent(): void {
-  document
-    .querySelectorAll('p[data-is-last-node], p[data-is-only-node]')
-    .forEach(processContent);
-}
-
 // ======== Initialization ========
 
 // Set up mutation observer
 setupMutationObserver();
-
-// Process existing content
-processExistingContent();
 
 debugLog('NB-LLM initialized');
