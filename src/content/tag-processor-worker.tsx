@@ -1,3 +1,5 @@
+import '../assets/styles/index.css'
+
 /**
  * LLM Tag Replacer
  * 
@@ -102,19 +104,6 @@ function processContent(element: Element): void {
   });
 }
 
-// ======== Style Injection ========
-
-/**
- * Injects required styles for the components
- */
-function injectStyles(): void {
-  // Add Tailwind CSS
-  const tailwindLink = document.createElement('link');
-  tailwindLink.rel = 'stylesheet';
-  tailwindLink.href = 'https://cdn.tailwindcss.com';
-  document.head.appendChild(tailwindLink);
-}
-
 // ======== DOM Observation ========
 
 /**
@@ -127,12 +116,14 @@ function setupMutationObserver(): void {
         const pElements = mutation.target as Element;
         pElements.querySelectorAll('p[data-start], p[data-end]').forEach(p => {
           processContent(p);
+          debugLog("ACTIVATED 1")
         });
       } else if (mutation.type === 'childList') {
         mutation.addedNodes.forEach(node => {
           if (node instanceof Element) {
             node.querySelectorAll('p[data-start], p[data-end]').forEach(p => {
               processContent(p);
+              debugLog("ACTIVATED 2")
             });
           }
         });
@@ -158,9 +149,6 @@ function processExistingContent(): void {
 }
 
 // ======== Initialization ========
-
-// Inject required styles
-injectStyles();
 
 // Set up mutation observer
 setupMutationObserver();
