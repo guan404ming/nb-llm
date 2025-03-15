@@ -8,13 +8,15 @@ Use <<highlight>>content<<highlight>> to highlight content in the text
 2. Hidden Content
 Use <<hide-and-see>>content<<hide-and-see>> to hide content in the text
 
+3. Underline Content
+Use <<underline>>content<<underline>> to underline content in the text
+
 ## Limitations
 
 1. The text should be in plain text format
 2. The response should not overlap with other the markup syntax
 
 ## Format Example
-<<highlight>>saw<<highlight>> a <<hide-and-see>>butterfly<<hide-and-see>> <<highlight>>dancing<<highlight>> in the <<hide-and-see>>garden<<hide-and-see>>.
-ChatGPT said:
+<<highlight>>saw<<highlight>> a <<hide-and-see>>butterfly<<hide-and-see>> <<highlight>>dancing<<highlight>> in the <<hide-and-see>>garden<<hide-and-see>> <<underline>>today<<underline>>
 
 In following sections, you could use the above syntax to format the text.

@@ -10,6 +10,7 @@ import hideAndSeeProcessor from './TagProcessors/HideAndSeeTagProcessor';
 
 import highlightProcessor from './TagProcessors/HighlightTagProcessor';
 import TagProcessor from './TagProcessors/TagProcessorsBase';
+import UnderlineTagProcessor from './TagProcessors/UnderlineProcessor';
 import { containsTag, processText } from './TagProcessors/utils';
 
 // ======== Utility Functions ========
@@ -30,6 +31,7 @@ function debugLog(...args: unknown[]): void {
 const tagProcessors: TagProcessor[] = [
   highlightProcessor,
   hideAndSeeProcessor,
+  UnderlineTagProcessor,
   // Add more processors here in the future
 ];
 
