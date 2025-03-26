@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import '../assets/styles/index.css';
 
 import hideAndSeeProcessor from './TagProcessors/HideAndSeeTagProcessor';
@@ -88,19 +89,19 @@ function processContent(element: Element): void {
 
   if (!wasProcessed) return;
 
-  // Replace the element's content with the processed text
   const tempContainer = document.createElement('div');
   tempContainer.innerHTML = processedText;
-
-  while (element.firstChild) {
-    element.removeChild(element.firstChild);
-  }
+  // const elementClone = element.cloneNode(false) as Element;
+  const container = document.createElement('div');
+  container.setAttribute('style', 'flex');
 
   while (tempContainer.firstChild) {
-    element.appendChild(tempContainer.firstChild);
+    container.appendChild(tempContainer.firstChild);
   }
 
-  debugLog('Processed element:', processedText);
+  element.innerHTML = '';
+  element.appendChild(container);
+
   // Enhance the element with the tag processors
   tagProcessors.forEach((processor) => {
     if (processor.enhanceElements) {
@@ -116,13 +117,19 @@ function processContent(element: Element): void {
  */
 function setupMutationObserver(): void {
   const observer = new MutationObserver((mutations: MutationRecord[]) => {
-    mutations.forEach((mutation) => {
-      if (mutation.target instanceof Element) {
+    if (mutations.length === 0 || mutations.length === 1) return;
+
+    mutations.forEach((mutation, index) => {
+      if (
+        mutation.target instanceof Element &&
+        mutation.type !== 'characterData' &&
+        mutations[index + 1]?.type !== 'characterData'
+      ) {
         const pElements = mutation.target as Element;
         pElements
-          .querySelectorAll('p[data-start], p[data-end]')
-          .forEach((p) => {
-            processContent(p);
+          .querySelectorAll('div[data-message-author-role="assistant"]')
+          .forEach((div) => {
+            processContent(div);
           });
       }
     });
