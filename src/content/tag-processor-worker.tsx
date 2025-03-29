@@ -145,7 +145,16 @@ function setupMutationObserver(): void {
 
 // ======== Initialization ========
 
-// Set up mutation observer
+document.querySelectorAll('p[data-start], p[data-end]').forEach((p) => {
+  processContent(p);
+});
+
+document
+  .querySelectorAll('div[data-message-author-role="assistant"]')
+  .forEach((div) => {
+    processContent(div);
+  });
+
 setupMutationObserver();
 
 debugLog('NB-LLM initialized');
